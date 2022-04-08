@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: hello-goodbye
+spec:
+  params:
+    - name: url
+      type: string
+      description: the git repository to clone
+  workspaces:
+    - name: main
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: main
+      workspace: output
+    params:
+      - name: url
+        value: "$(params.url)"

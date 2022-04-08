@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitlog
+spec:
+  steps:
+    - name: goodbye
+      image: enterpriseautomation/
+      script: |
+        #!/bin/bash
+        echo "Goodbye World!"        
