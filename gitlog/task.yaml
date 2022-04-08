@@ -3,9 +3,7 @@ kind: Task
 metadata:
   name: gitlog
 spec:
+  workspace
   steps:
     - name: goodbye
-      image: enterpriseautomation/
-      script: |
-        #!/bin/bash
-        echo "Goodbye World!"        
+      image: enterpriseautomation/tekton.gitlog
