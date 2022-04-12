@@ -10,12 +10,15 @@ spec:
   workspaces:
     - name: main
   tasks:
-  - name: fetch-source
-    taskRef:
-      name: git-clone
-    workspaces:
-    - name: main
-      workspace: output
-    params:
-      - name: url
-        value: "$(params.url)"
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+      - name: main
+        workspace: output
+      params:
+        - name: url
+          value: "$(params.url)"
+    - name: fetch-source
+      taskRef:
+        name: git-clone
