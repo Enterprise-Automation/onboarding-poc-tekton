@@ -2,7 +2,7 @@ FROM golang:1.12.0-alpine3.9
 
 RUN apk update
 
-RUN apk add git jq
+RUN apk add git
 
 RUN mkdir /app
 

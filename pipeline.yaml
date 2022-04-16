@@ -1,24 +1,80 @@
 apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: test3
+spec:
+  pipelineRef:
+    name: test
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  params:
+  - name: repo-url
+    value: https://github.com/Enterprise-Automation/onboarding-poc.git
+  - name: branch-name
+    value: main
+---
+apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: hello-goodbye
+  name: test
 spec:
   params:
-    - name: url
-      type: string
-      description: the git repository to clone
+  - name: repo-url
+    type: string
+    description: The git repository URL to clone from.
+  - name: branch-name
+    type: string
+    description: The git branch to clone.
   workspaces:
-    - name: main
+  - name: shared-data
+    description: shared data.
   tasks:
-    - name: fetch-source
-      taskRef:
-        name: git-clone
-      workspaces:
-      - name: main
-        workspace: output
-      params:
-        - name: url
-          value: "$(params.url)"
-    - name: fetch-source
-      taskRef:
-        name: git-clone
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-data
+    params:
+    - name: url
+      value: $(params.repo-url)
+    - name: revision
+      value: $(params.branch-name)
+  - name: gitlog
+    taskRef:
+      name: gitlog
+    workspaces:
+    - name: source
+      workspace: shared-data
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitlog
+spec:
+  workspaces:
+    - name: source
+  results:
+    - name: modified
+      description: files modified
+    - name: removed
+      description: files deleted
+    - name: added
+      description: files created
+  steps:
+    - name: interrogate-git-log
+      image: enterpriseautomation/tekton.gitlog    
+      script: |
+        #!/usr/bin/env sh
+        cd $(workspaces.source.path)
+        /app/main | jq '.added' -c | tee $(results.added.path)
+        /app/main | jq '.modified' -c | tee $(results.modified.path)
+        /app/main | jq '.removed' -c | tee $(results.removed.path)
+

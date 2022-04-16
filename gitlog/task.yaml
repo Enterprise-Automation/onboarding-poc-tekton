@@ -3,7 +3,20 @@ kind: Task
 metadata:
   name: gitlog
 spec:
-  workspace
+  workspaces:
+    - name: source
+      workspace: shared-data
+  results:
+    - name: modified
+      description: files modified
+    - name: deleted
+      description: files deleted
+    - name: created
+      description: files created
   steps:
-    - name: goodbye
-      image: enterpriseautomation/tekton.gitlog
+    - name: interrogate git log
+      image: enterpriseautomation/tekton.gitlog    
+      script: |
+        #!/usr/bin/env bash
+        cd $(workspaces.source.path)
+        /app/main | tee $(results.modified.path)
